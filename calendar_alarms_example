@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+# coding: utf-8
+
+import sys
+import requests
+from calendar_alarms import parse_calendar_alarms
+
+calendar_url = 'https://calendrier.nytrio.com/ishak/ishak.ics/'
+
+def main():
+    r = requests.get(calendar_url)
+    if not r.status_code == 200:
+        print("Error while fetching calendar, got HTTP code {}".format(r.status_code))
+        return 1
+
+    def _alarm_cb(event, alarm_date):
+        print("Alarm for {} at {}".format(event.get('summary'), str(alarm_date)))
+
+    parse_calendar_alarms(r.content, alarm_callback=_alarm_cb)
+
+
+if __name__ == '__main__':
+   sys.exit(main())

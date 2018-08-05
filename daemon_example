@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+# coding: utf-8
+
+import sys
+import requests
+import argparse
+import logging
+from twisted_daemon import run_daemon
+from free_sms import send_sms
+
+def main():
+
+    def _alarm_callback(event):
+        title = event.get('summary')
+        logging.info('Sending notification for %s', title)
+        message = "Rappel : {} prévu pour {}".format(
+            title,
+            event.get('DTSTART').dt.strftime("%d/%m/%y %H:%M")
+        )
+        send_sms(free_user_id, free_pass, message)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("free_user_id")
+    parser.add_argument("free_pass")
+    parser.add_argument("calendar_url")
+
+    args = parser.parse_args()
+    free_user_id = args.free_user_id
+    free_pass = args.free_pass
+    calendar_url = args.calendar_url
+
+    # Run the daemon
+    run_daemon(calendar_url, _alarm_callback)
+
+
+if __name__ == '__main__':
+   sys.exit(main())
